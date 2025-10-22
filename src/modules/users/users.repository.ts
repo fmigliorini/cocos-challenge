@@ -1,12 +1,14 @@
-import { Injectable } from "@nestjs/common";
-import { Users } from "./entities/user.entity";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Injectable } from '@nestjs/common';
+import { Users } from './entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
-  constructor(@InjectRepository(Users) private readonly userRepository: Repository<Users>) {}
-  
+  constructor(
+    @InjectRepository(Users) private readonly userRepository: Repository<Users>,
+  ) {}
+
   /**
    * Checks if a user exists by their ID.
    *

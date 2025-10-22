@@ -1,7 +1,9 @@
-import { TypeOrmModuleOptions } from "@nestjs/typeorm";
-import { ConfigService } from "@nestjs/config";
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { ConfigService } from '@nestjs/config';
 
-export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptions => {
+export const databaseConfig = (
+  configService: ConfigService,
+): TypeOrmModuleOptions => {
   console.log('DATABASE_URL', configService.get<string>('DATABASE_URL'));
 
   return {

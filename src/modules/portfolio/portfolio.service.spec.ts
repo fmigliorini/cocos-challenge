@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PortfolioService } from './portfolio.service';
 
-
 describe('PortfolioService', () => {
   let service: PortfolioService;
 
