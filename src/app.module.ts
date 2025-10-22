@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { UsersModule } from './modules/users/users.module';
 import { PortfolioModule } from './modules/portfolio/portfolio.module';
-import { PortfolioService } from './modules/portfolio/portfolio.service';
+import { LoggingModule } from './infrastructure/logger/logging.module';
 
 @Module({
   imports: [
@@ -15,8 +15,8 @@ import { PortfolioService } from './modules/portfolio/portfolio.service';
     }),
     // Infrastructure modules
     DatabaseModule,
+    LoggingModule,
     // Modules
-    // PortfolioModule,
     UsersModule,
     PortfolioModule,
   ],

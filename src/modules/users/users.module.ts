@@ -3,11 +3,10 @@ import { Users } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { UserExistsPipe } from './pipes/user-exists.pipe';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LoggingModule } from 'src/infrastructure/logger/logging.module';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Users]), LoggingModule],
+    imports: [TypeOrmModule.forFeature([Users])],
     providers: [UsersRepository, UserExistsPipe],
-    exports: [UsersRepository, UserExistsPipe, LoggingModule],
+    exports: [UsersRepository, UserExistsPipe],
 })
 export class UsersModule {}
