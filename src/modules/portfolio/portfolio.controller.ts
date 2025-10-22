@@ -1,7 +1,8 @@
-import { Controller, Get, HttpCode, HttpException, HttpStatus, Param } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Portfolio, PortfolioResult, PortfolioService } from './portfolio.service';
+import { Controller, Get, HttpCode, HttpException, HttpStatus, Param, ParseIntPipe } from '@nestjs/common';
+import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { PortfolioResult, PortfolioService } from './portfolio.service';
 import { ResultCode } from 'src/core/common-types';
+import { PortfolioResponseDto, PortfolioRequestDto } from './dto/portfolio.dto';
 
 @ApiTags('Portfolio')
 @Controller('portfolio')
@@ -11,8 +12,8 @@ export class PortfolioController {
   @Get(':userId')
   @HttpCode(200)
   @ApiOperation({ summary: 'Get portfolio' })
-  @ApiResponse({ status: 200, description: 'Success' })
-  async getPortfolio(@Param('userId') userId: string): Promise<Portfolio> {
+  @ApiOkResponse({ type: PortfolioResponseDto })
+  async getPortfolio(@Param('userId', ParseIntPipe) userId: number): Promise<PortfolioResponseDto> {
     const result = await this.portfolioService.getPortfolio(userId);
     
     switch (result.type) {

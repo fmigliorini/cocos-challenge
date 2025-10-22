@@ -1,28 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { ResultCode } from '../../core/common-types';
-
-export interface Position {
-  instrumentId: string;
-  ticker: string;
-  name: string;
-  quantity: number;
-  marketPrice: number;
-  marketValue: number;
-  averagePrice: number;
-  pnpPercentage: number;
-  dailyReturnPercent: number;
-};
-
-export interface Portfolio {
-  userId: string;
-  availableCash: string;
-  totalPositionsValue: string;
-  positions: Position[];
-};
+import { PortfolioResponseDto } from './dto/portfolio.dto';
 
 export type SuccessPortfolioResult = {
   type: ResultCode.SUCCESS;
-  data: Portfolio;
+  data: PortfolioResponseDto;
 };
 
 export type FailedPortfolioResult = {
@@ -34,7 +16,7 @@ export type PortfolioResult = SuccessPortfolioResult | FailedPortfolioResult;
 
 @Injectable()
 export class PortfolioService {
-  async getPortfolio(userId: string): Promise<PortfolioResult> {
+  async getPortfolio(userId: number): Promise<PortfolioResult> {
     return {
       type: ResultCode.SUCCESS,
       data: {
@@ -50,7 +32,7 @@ export class PortfolioService {
             marketPrice: 10000,
             marketValue: 10000,
             averagePrice: 10000,
-            pnpPercentage: 0,
+            pnlPercentage: 0,
             dailyReturnPercent: 0,
           },
           {
@@ -61,7 +43,7 @@ export class PortfolioService {
             marketPrice: 1000,
             marketValue: 1000,
             averagePrice: 1000,
-            pnpPercentage: 0,
+            pnlPercentage: 0,
             dailyReturnPercent: 0,
           },
         ],
