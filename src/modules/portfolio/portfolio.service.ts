@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ResultCode } from '../../core/common-types';
 import { PortfolioResponseDto } from './dto/portfolio.dto';
 import { InjectPinoLogger, PinoLogger } from 'nestjs-pino';
@@ -21,11 +21,11 @@ const GET_PORTFOLIO_FAILURE_LOG = '[cocos-challenge.portfolio.get_portfolio.fail
 
 @Injectable()
 export class PortfolioService {
-  constructor(@InjectPinoLogger(PortfolioService.name) private readonly logger: PinoLogger) {}
+  private  readonly  logger  =  new  Logger ( PortfolioService.name ) ;
 
   async getPortfolio(userId: number): Promise<PortfolioResult> {
     try {
-      this.logger.info({ userId }, GET_PORTFOLIO_SUCCESS_LOG);
+      this.logger.log({ userId }, GET_PORTFOLIO_SUCCESS_LOG);
       return {
         type: ResultCode.SUCCESS,
         data: {
