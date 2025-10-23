@@ -90,6 +90,7 @@ describe('PortfolioService', () => {
       expect(result.type).toBe(ResultCode.SUCCESS);
       if (result.type === ResultCode.SUCCESS) {
         expect(result.data).toBeInstanceOf(PortfolioResponseDto);
+        expect(result.data.userId).toBe(userId);
         expect(result.data.totalAccountValue).toBe('11500.00'); // 10000 + 1500 (position value)
         expect(result.data.availableCash).toBe('5000.00');
         expect(result.data.positions).toHaveLength(1);
@@ -113,6 +114,7 @@ describe('PortfolioService', () => {
       // Assert
       expect(result.type).toBe(ResultCode.SUCCESS);
       if (result.type === ResultCode.SUCCESS) {
+        expect(result.data.userId).toBe(userId);
         expect(result.data.positions).toHaveLength(0);
         expect(result.data.totalAccountValue).toBe('1000.00');
         expect(result.data.availableCash).toBe('1000.00');

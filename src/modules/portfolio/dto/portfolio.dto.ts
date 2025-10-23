@@ -60,7 +60,8 @@ export class PortfolioResponseDto {
   @IsNotEmpty()
   positions: PositionDto[];
 
-  constructor(portfolio: PortfolioDetails) {
+  constructor(portfolio: PortfolioDetails, userId: number) {
+    this.userId = userId;
     this.totalAccountValue = portfolio.totalAccountValue;
     this.availableCash = portfolio.availableCashAfterReserves;
     this.positions = portfolio.positions.map(
@@ -134,6 +135,7 @@ export class PositionDto {
     this.name = position.name;
     this.quantity = position.qty;
     this.marketValue = position.positionValue ?? '0.00';
+    this.averageCost = '0.00'; // Not available in PositiionDetails type
     this.pnlPercentage = position.totalReturnPct ?? '0.00';
   }
 }

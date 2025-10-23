@@ -142,7 +142,7 @@ export class PortfolioService {
         positions: userStockPositions,
       };
 
-      return this.mapResponse(portfolio);
+      return this.mapResponse(portfolio, userId);
     } catch (error: unknown) {
       this.logger.error({ error, userId }, GET_PORTFOLIO_FAILURE_LOG);
       return {
@@ -152,10 +152,13 @@ export class PortfolioService {
     }
   }
 
-  private mapResponse(portfolio: PortfolioDetails): SuccessPortfolioResult {
+  private mapResponse(
+    portfolio: PortfolioDetails,
+    userId: number,
+  ): SuccessPortfolioResult {
     return {
       type: ResultCode.SUCCESS,
-      data: new PortfolioResponseDto(portfolio),
+      data: new PortfolioResponseDto(portfolio, userId),
     };
   }
 }
