@@ -8,6 +8,7 @@ import {
   Min,
 } from 'class-validator';
 import { userIdApiProperty } from 'src/core/swagger-decorators';
+import { PortfolioDetails, PositiionDetails } from '../portfolio.types';
 
 /**
  * Portfolio Request DTO
@@ -39,7 +40,7 @@ export class PortfolioResponseDto {
   })
   @IsString()
   @IsNotEmpty()
-  totalValue: string;
+  totalAccountValue: string;
 
   @ApiProperty({
     required: true,
@@ -52,21 +53,20 @@ export class PortfolioResponseDto {
 
   @ApiProperty({
     required: true,
-    description: 'The total positions value',
-    example: '1000',
-  })
-  @IsString()
-  @IsNotEmpty()
-  totalPositionsValue: string;
-
-  @ApiProperty({
-    required: true,
     description: 'The positions',
     example: '1000',
   })
   @IsArray()
   @IsNotEmpty()
   positions: PositionDto[];
+
+  constructor(portfolio: PortfolioDetails) {
+    this.totalAccountValue = portfolio.totalAccountValue;
+    this.availableCash = portfolio.availableCashAfterReserves;
+    this.positions = portfolio.positions.map(
+      (position) => new PositionDto(position),
+    );
+  }
 }
 
 /**
@@ -75,14 +75,6 @@ export class PortfolioResponseDto {
  * It contains the instrument ID, ticker, name, quantity, market price, market value, average price, and P&L percentage.
  */
 export class PositionDto {
-  @ApiProperty({
-    required: true,
-    description: 'The instrument ID',
-    example: '1',
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  instrumentId: number;
 
   @ApiProperty({
     required: true,
@@ -113,15 +105,6 @@ export class PositionDto {
 
   @ApiProperty({
     required: true,
-    description: 'The instrument market price',
-    example: 100,
-  })
-  @IsString()
-  @IsNotEmpty()
-  marketPrice: string;
-
-  @ApiProperty({
-    required: true,
     description: 'The instrument market value',
     example: 100,
   })
@@ -131,12 +114,12 @@ export class PositionDto {
 
   @ApiProperty({
     required: true,
-    description: 'The instrument average price',
+    description: 'The instrument average cost',
     example: 100,
   })
   @IsString()
   @IsNotEmpty()
-  averagePrice: string;
+  averageCost: string;
 
   @ApiProperty({
     required: true,
@@ -147,12 +130,11 @@ export class PositionDto {
   @IsNotEmpty()
   pnlPercentage: string;
 
-  @ApiProperty({
-    required: true,
-    description: 'The instrument daily return percentage',
-    example: 100,
-  })
-  @IsNumber()
-  @IsNotEmpty()
-  dailyReturnPercent: number;
+  constructor(position: PositiionDetails) {
+    this.ticker = position.ticker;
+    this.name = position.name;
+    this.quantity = position.qty;
+    this.marketValue = position.positionValue ?? '0.00';
+    this.pnlPercentage = position.totalReturnPct ?? '0.00';
+  }
 }

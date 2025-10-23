@@ -1,13 +1,25 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Order } from 'src/modules/orders/entities/order.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Users {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({
+    type: 'integer',
+  })
   id: number;
 
-  @Column({ length: 255 })
+  @Column({
+    type: 'varchar',
+    length: 255,
+  })
   email: string;
 
-  @Column({ length: 20 })
+  @Column({
+    type: 'varchar',
+    length: 20,
+  })
   accountNumber: string;
+
+  @OneToMany(() => Order, order => order.userId)
+  orders!: Order[];
 }
