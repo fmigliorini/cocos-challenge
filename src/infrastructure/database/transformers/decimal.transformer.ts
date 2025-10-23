@@ -5,7 +5,7 @@ import { ValueTransformer } from 'typeorm';
  * Later swap to decimal(.js) if needed.
  */
 export class DecimalAsStringTransformer implements ValueTransformer {
-  to(value: string | number | null): string | null {
+  to(value: string | number | null | undefined): string | null {
     if (value === null || value === undefined) return null;
     return typeof value === 'number' ? value.toString() : value;
   }
