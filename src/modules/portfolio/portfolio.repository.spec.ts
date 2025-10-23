@@ -6,7 +6,6 @@ import { PortfolioRepository } from './portfolio.repository';
 import { Order } from '../orders/entities/order.entity';
 import { Instrument } from '../instruments/entities/instrument.entity';
 import { MarketData } from '../market-data/entities/market-data.entity';
-// import { PositionAggRow, PriceRow } from './portfolio.types';
 
 describe('PortfolioRepository', () => {
   let repository: PortfolioRepository;
