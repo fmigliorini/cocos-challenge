@@ -17,7 +17,7 @@ export class PortfolioRepository {
     private readonly _instruments: Repository<Instrument>,
     @InjectRepository(MarketData)
     private readonly marketData: Repository<MarketData>,
-  ) { }
+  ) {}
 
   /**
    * Positions still open per instrument:

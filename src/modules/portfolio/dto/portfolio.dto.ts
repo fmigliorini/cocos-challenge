@@ -75,7 +75,6 @@ export class PortfolioResponseDto {
  * It contains the instrument ID, ticker, name, quantity, market price, market value, average price, and P&L percentage.
  */
 export class PositionDto {
-
   @ApiProperty({
     required: true,
     description: 'The instrument ticker',

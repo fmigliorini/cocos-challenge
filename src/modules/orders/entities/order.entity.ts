@@ -58,9 +58,9 @@ export class Order {
   })
   datetime: Date;
 
-  @ManyToOne(() => Instrument, instrument => instrument.orders)
+  @ManyToOne(() => Instrument, (instrument) => instrument.orders)
   instrument: Instrument;
 
-  @ManyToOne(() => Users, user => user.orders)
+  @ManyToOne(() => Users, (user) => user.orders)
   user: Users;
 }

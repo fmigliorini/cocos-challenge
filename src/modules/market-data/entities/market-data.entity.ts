@@ -55,6 +55,6 @@ export class MarketData {
   })
   date: string;
 
-  @ManyToOne(() => Instrument, instrument => instrument.marketData)
+  @ManyToOne(() => Instrument, (instrument) => instrument.marketData)
   instrument!: Instrument;
 }

@@ -20,6 +20,6 @@ export class Users {
   })
   accountNumber: string;
 
-  @OneToMany(() => Order, order => order.userId)
+  @OneToMany(() => Order, (order) => order.userId)
   orders!: Order[];
 }

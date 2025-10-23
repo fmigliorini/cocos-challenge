@@ -28,9 +28,9 @@ export class Instrument {
   })
   type: InstrumentType; // 'ACCIONES' | 'MONEDA'
 
-  @OneToMany(() => Order, order => order.instrumentId)
+  @OneToMany(() => Order, (order) => order.instrumentId)
   orders!: Order[];
 
-  @OneToMany(() => MarketData, md => md.instrumentId)
+  @OneToMany(() => MarketData, (md) => md.instrumentId)
   marketData!: MarketData[];
 }

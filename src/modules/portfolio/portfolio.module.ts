@@ -9,7 +9,10 @@ import { MarketData } from '../market-data/entities/market-data.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
-  imports: [UsersModule, TypeOrmModule.forFeature([Instrument, MarketData, Order])],
+  imports: [
+    UsersModule,
+    TypeOrmModule.forFeature([Instrument, MarketData, Order]),
+  ],
   controllers: [PortfolioController],
   providers: [PortfolioService, PortfolioRepository],
 })
