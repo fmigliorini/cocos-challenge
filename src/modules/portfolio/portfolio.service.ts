@@ -17,10 +17,8 @@ export type FailedPortfolioResult = {
 export type PortfolioResult = SuccessPortfolioResult | FailedPortfolioResult;
 
 // Metrics for tracking the success and failure of the get portfolio operation
-const GET_PORTFOLIO_SUCCESS_LOG =
-  '[cocos-challenge.portfolio.get_portfolio.success] get portfolio success';
-const GET_PORTFOLIO_FAILURE_LOG =
-  '[cocos-challenge.portfolio.get_portfolio.failure] get portfolio failure';
+const GET_PORTFOLIO_SUCCESS_LOG = '[cocos-challenge.portfolio.get_portfolio.success] get portfolio success';
+const GET_PORTFOLIO_FAILURE_LOG = '[cocos-challenge.portfolio.get_portfolio.failure] get portfolio failure';
 
 @Injectable()
 export class PortfolioService {
@@ -30,87 +28,103 @@ export class PortfolioService {
 
   async getPortfolio(userId: number): Promise<PortfolioResult> {
     try {
-      // Fetch base data
-      const [availableCashStr, reservedCashStr, positions] = await Promise.all([
+      // Fetch user's account data
+      const [availableCashString, reservedCashString, userPositions] = await Promise.all([
         this.portfolioRepository.getAvailableCash(userId),
         this.portfolioRepository.getReservedCash(userId),
         this.portfolioRepository.getPositions(userId), // PositionAggRow[]
       ]);
 
-      // Prices for instruments in positions
-      const instrumentIds = positions.map((p) => p.instrumentId);
-      const latestPrices =
-        await this.portfolioRepository.getLatestClosePrices(instrumentIds); // PriceRow[]
+      // Get current prices for all stocks the user owns
+      const stockIds = userPositions.map(p => p.instrumentId);
+      const currentStockPrices = await this.portfolioRepository.getLatestClosePrices(stockIds); // PriceRow[]
 
-      // Build price map: instrumentId -> last price
-      const priceMap = new Map<number, number | null>(
-        latestPrices.map((p) => [
-          p.instrumentId,
-          p.close == null || p.close === '' ? null : Number(p.close),
-        ]),
+      // Create a map of stock ID to current price
+      const stockPriceMap = new Map<number, number | null>(
+        currentStockPrices.map(p => [p.instrumentId, p.close == null || p.close === '' ? null : Number(p.close)]),
       );
 
-      // Build holdings with valuation & returns
-      let totalPositionsValue = 0;
-      const holdingPositions: PositiionDetails[] = positions.map((row) => {
-        const instrumentId = row.instrumentId;
-        const qty = row.quantity;
-        const netCashFlow = Number(row.netCashFlow ?? 0); // could be negative net buyer
-        const lastPrice = priceMap.get(instrumentId) ?? null;
+      // Calculate the value of each stock position and returns
+      let totalStockValue = 0;
+      const userStockPositions: PositiionDetails[] = userPositions.map(position => {
+        const stockId = position.instrumentId; // instrumentId of the stock
+        const sharesOwned = position.quantity; // quantity of shares owned
+        const totalMoneyInvested = Number(position.netCashFlow ?? 0); // key: negative means user bought more than sold
+        const currentStockPrice = stockPriceMap.get(stockId) ?? null; // value: current price of the stock
 
-        // default position value and return percentage to undefined if no price
-        // Edge case: no price for the instrument
-        if (!lastPrice) {
+        // If we don't have a current price for this stock, we can't calculate its value
+        if (!currentStockPrice) {
           return {
-            ticker: row.ticker,
-            name: row.name,
-            qty,
+            ticker: position.ticker,
+            name: position.name,
+            qty: sharesOwned,
             positionValue: undefined,
             totalReturnPct: undefined,
           };
         }
 
-        // Calculate position value
-        const positionValueNum = qty * lastPrice;
-        // Add to total positions value
-        totalPositionsValue += positionValueNum;
+        // Calculate how much this stock position is worth now
+        const currentPositionValue = sharesOwned * currentStockPrice;
+        // Add to total value of all stocks
+        totalStockValue += currentPositionValue;
 
-        // Calculate total return percentage
-        let totalReturnPctNum: number | undefined;
+        // Calculate how much profit or loss this stock has made
+        let profitLossPercentage: number | undefined;
 
-        // Return% formula (cost from net cash flow):
-        //   netCashFlow = Σ(+SELL) + Σ(-BUY)  => negative if net buyer, positive if net seller
-        //   totalReturn% = (positionValue + netCashFlow) / (-netCashFlow) * 100
-        if (qty !== 0 && netCashFlow !== 0) {
-          const denom = -netCashFlow; // positive for net buyer, negative for net seller
-          totalReturnPctNum = ((positionValueNum + netCashFlow) / denom) * 100;
+        /**
+         * Calculate return percentage: (current value - money invested) / money invested * 100
+         * If the user didn't buy or sell any shares, return percentage is undefined.
+         *
+         * Why this check is needed?
+         * We need both conditions to calculate a meaningful return percentage:
+         * 1. sharesOwned !== 0: User must have some position (positive or negative shares)
+         * 2. totalMoneyInvested !== 0: User must have some investment history to compare against
+         *
+         * Note: Users can have negative shares (short positions) in this system.
+         *
+         * Why totalMoneyInvested is not 0?
+         * Because the total money invested is the sum of all the money invested in the stock.
+         * If totalMoneyInvested is 0, it means the user's net cash flow is zero (bought and sold the same amount).
+         * We can't calculate a meaningful return percentage because we would be dividing by zero.
+         * The return percentage would be infinite or undefined, so we skip the calculation.
+         */
+        if (sharesOwned !== 0 && totalMoneyInvested !== 0) {
+          /**
+           * We use Math.abs() to get the absolute value of totalMoneyInvested for the calculation.
+           * This ensures the denominator is always positive, regardless of the sign.
+           *
+           * Case 1: totalMoneyInvested is positive (user sold more than bought)
+           * Math.abs(+$500) = $500
+           *
+           * Case 2: totalMoneyInvested is negative (user bought more than sold)
+           * Math.abs(-$500) = $500
+           */
+          const totalMoneyInvestedAbsolute = Math.abs(totalMoneyInvested); // always positive for calculation
+          profitLossPercentage = ((currentPositionValue + totalMoneyInvested) / totalMoneyInvestedAbsolute) * 100;
         }
 
         return {
-          ticker: row.ticker,
-          name: row.name,
-          qty,
-          positionValue: positionValueNum?.toFixed(2) ?? undefined,
-          totalReturnPct: totalReturnPctNum?.toFixed(2) ?? undefined,
+          ticker: position.ticker,
+          name: position.name,
+          qty: sharesOwned,
+          positionValue: currentPositionValue?.toFixed(2) ?? undefined,
+          totalReturnPct: profitLossPercentage?.toFixed(2) ?? undefined,
         };
       });
 
-      // Cash math (strings -> numbers -> strings)
-      const availableCashNum = Number(availableCashStr ?? 0);
-      const reservedCashNum = Number(reservedCashStr ?? 0);
-      const availableAfterReservesNum = Math.max(
-        availableCashNum - reservedCashNum,
-        0,
-      );
+      // Calculate cash amounts (convert from strings to numbers)
+      const availableCashAmount = Number(availableCashString ?? 0);
+      const reservedCashAmount = Number(reservedCashString ?? 0);
+      const spendableCashAmount = Math.max(availableCashAmount - reservedCashAmount, 0);
 
-      const totalAccountValueNum = availableCashNum + totalPositionsValue;
+      const totalAccountValue = availableCashAmount + totalStockValue;
 
       this.logger.log({ userId }, GET_PORTFOLIO_SUCCESS_LOG);
 
       const portfolio: PortfolioDetails = {
-        availableCashAfterReserves: availableAfterReservesNum.toFixed(2),
-        totalAccountValue: totalAccountValueNum.toFixed(2),
-        positions: holdingPositions,
+        availableCashAfterReserves: spendableCashAmount.toFixed(2),
+        totalAccountValue: totalAccountValue.toFixed(2),
+        positions: userStockPositions,
       };
 
       return this.mapResponse(portfolio);
