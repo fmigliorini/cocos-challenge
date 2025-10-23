@@ -14,18 +14,20 @@ async function bootstrap() {
    * It transforms the request body to the DTO class.
    * It also whitelists the request body and forbids non-whitelisted properties.
    */
-  app.useGlobalPipes(new ValidationPipe({
-    transform: true,
-    whitelist: true,
-    forbidNonWhitelisted: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
 
   /**
    * SwaggerModule
    *
    * This module is used to create the Swagger document.
    * It is used to generate the Swagger UI.
-   * 
+   *
    * path: /docs
    */
   const config = new DocumentBuilder()

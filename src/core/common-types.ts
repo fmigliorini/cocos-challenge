@@ -1,4 +1,4 @@
 export enum ResultCode {
-    SUCCESS = 'success',
-    FAILED = 'failed',
+  SUCCESS = 'success',
+  FAILED = 'failed',
 }
