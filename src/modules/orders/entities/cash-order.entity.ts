@@ -1,12 +1,11 @@
-import { ChildEntity } from 'typeorm';
 import { Order } from './order.entity';
-import { OrderStatus } from '../orders.types';
+import { OrderStatus, OrderType } from '../orders.types';
 
-@ChildEntity('MARKET')
 export class CashOrder extends Order {
   constructor() {
     super();
     this.status = OrderStatus.FILLED;
+    this.type = OrderType.MARKET;
   }
 
   // Cash orders can be FILLED or REJECTED

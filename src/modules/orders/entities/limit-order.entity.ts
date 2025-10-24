@@ -1,12 +1,11 @@
-import { ChildEntity } from 'typeorm';
 import { Order } from './order.entity';
 import { OrderStatus, OrderType } from '../orders.types';
 
-@ChildEntity('LIMIT')
 export class LimitOrder extends Order {
   constructor() {
     super();
     this.status = OrderStatus.NEW;
+    this.type = OrderType.LIMIT;
   }
 
   /**

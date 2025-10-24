@@ -26,7 +26,7 @@ export class OrdersRepository {
     private readonly instruments: Repository<Instrument>,
     @InjectRepository(MarketData)
     private readonly marketData: Repository<MarketData>,
-  ) { }
+  ) {}
 
   async createOrder(orderData: CreateOrderData): Promise<Order> {
     const order = this.orders.create(orderData);

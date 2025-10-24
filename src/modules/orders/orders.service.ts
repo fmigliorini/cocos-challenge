@@ -3,7 +3,7 @@ import { ResultCode } from '../../core/common-types';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { OrdersRepository } from 'src/modules/orders/orders.repository';
-import { OrderStatus, OrderType, OrderSide } from './orders.types';
+import { OrderType, OrderSide } from './orders.types';
 import { OrderFactory } from './entities/order-factory';
 
 export type SuccessOrderResult = {

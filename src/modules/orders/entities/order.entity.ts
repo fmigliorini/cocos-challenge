@@ -6,13 +6,11 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  TableInheritance,
 } from 'typeorm';
 import { OrderSide, OrderStatus, OrderType } from '../orders.types';
 import { DecimalAsStringTransformer } from 'src/infrastructure/database/transformers/decimal.transformer';
 
 @Entity('orders')
-@TableInheritance({ column: { type: 'varchar', name: 'type' } })
 export class Order {
   @PrimaryGeneratedColumn()
   id: number;
