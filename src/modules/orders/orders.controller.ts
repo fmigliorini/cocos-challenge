@@ -20,7 +20,7 @@ export class OrdersController {
   constructor(
     private readonly ordersService: OrdersService,
     private readonly validateUserHeaderPipe: ValidateUserHeaderPipe,
-  ) { }
+  ) {}
 
   @Post()
   // Usually return empty payload but for the exam purpose we return the order data

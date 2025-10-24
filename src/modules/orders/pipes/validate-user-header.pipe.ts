@@ -10,7 +10,7 @@ import { UsersRepository } from '../../users/users.repository';
 export class ValidateUserHeaderPipe implements PipeTransform {
   constructor(
     @Inject(UsersRepository) private readonly usersRepository: UsersRepository,
-  ) { }
+  ) {}
 
   async transform(value: string): Promise<number> {
     if (!value) {
