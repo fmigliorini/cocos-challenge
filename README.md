@@ -33,7 +33,6 @@ LOG_LEVEL=debug
 
 ### Pre requirements (or docker setup)
 - **Node.js**: v20+
-- **PostgreSQL**: v13+
 - **Yarn**: v3+
 
 ## 🚀 Installation
