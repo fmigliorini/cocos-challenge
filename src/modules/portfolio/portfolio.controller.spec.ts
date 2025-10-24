@@ -80,7 +80,7 @@ describe('PortfolioController', () => {
     it('should return portfolio data when service returns success', async () => {
       // Arrange
       const successResult = {
-        type: ResultCode.SUCCESS as const,
+        type: ResultCode.SUCCESS,
         data: mockPortfolioResponse,
       };
       portfolioServiceGetPortfolioSpy.mockResolvedValue(successResult);
@@ -98,7 +98,7 @@ describe('PortfolioController', () => {
     it('should throw HttpException when service returns failure', async () => {
       // Arrange
       const failureResult = {
-        type: ResultCode.FAILED as const,
+        type: ResultCode.FAILED,
         message: 'Failed to get portfolio',
       };
       portfolioServiceGetPortfolioSpy.mockResolvedValue(failureResult);
@@ -149,7 +149,7 @@ describe('PortfolioController', () => {
         ],
       };
       const successResult = {
-        type: ResultCode.SUCCESS as const,
+        type: ResultCode.SUCCESS,
         data: multiPositionResponse,
       };
       portfolioServiceGetPortfolioSpy.mockResolvedValue(successResult);

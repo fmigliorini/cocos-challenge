@@ -18,7 +18,7 @@ import { UserExistsPipe } from '../users/pipes/user-exists.pipe';
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(private readonly ordersService: OrdersService) { }
 
   @Post(':userId')
   @HttpCode(HttpStatus.CREATED)
@@ -50,10 +50,11 @@ export class OrdersController {
       createOrderDto,
     );
 
-    if (result.type === ResultCode.FAILED) {
-      throw new HttpException(result.message, HttpStatus.UNPROCESSABLE_ENTITY);
+    switch (result.type) {
+      case ResultCode.SUCCESS:
+        return result.data;
+      case ResultCode.FAILED:
+        throw new HttpException(result.message, HttpStatus.CONFLICT);
     }
-
-    return result.data;
   }
 }

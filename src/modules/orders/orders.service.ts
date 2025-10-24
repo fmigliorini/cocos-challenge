@@ -35,7 +35,7 @@ const CREATE_ORDER_FAILURE_LOG =
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly ordersRepository: OrdersRepository) { }
+  constructor(private readonly ordersRepository: OrdersRepository) {}
 
   async createOrder(
     userId: number,
