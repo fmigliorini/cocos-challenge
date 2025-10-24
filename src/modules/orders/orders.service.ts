@@ -35,7 +35,7 @@ const CREATE_ORDER_FAILURE_LOG =
 export class OrdersService {
   private readonly logger = new Logger(OrdersService.name);
 
-  constructor(private readonly ordersRepository: OrdersRepository) {}
+  constructor(private readonly ordersRepository: OrdersRepository) { }
 
   async createOrder(
     userId: number,
@@ -48,26 +48,20 @@ export class OrdersService {
       );
 
       if (!instrument) {
-        return {
-          type: ResultCode.FAILED,
-          message: 'Instrument not found',
-        };
+        return this.failedOrderResult('Instrument not found');
       }
 
       // Calculate price based on order type
       const priceResult = await this.calculateOrderPrice(createOrderDto);
       if (priceResult.type === ResultCode.FAILED) {
-        return priceResult;
+        return this.failedOrderResult(priceResult.message);
       }
       const price = priceResult.price;
 
       // Calculate size based on order type
       const size = this.calculateOrderSize(createOrderDto, price);
       if (!size || size <= 0) {
-        return {
-          type: ResultCode.FAILED,
-          message: `Invalid order size: ${size}, ${price}`,
-        };
+        return this.failedOrderResult(`Invalid order size: ${size}, ${price}`);
       }
 
       // Validate user has sufficient funds/shares
@@ -78,7 +72,7 @@ export class OrdersService {
         price,
       );
       if (validationResult.type === ResultCode.FAILED) {
-        return validationResult;
+        return this.failedOrderResult(validationResult.message);
       }
 
       // Create order using factory
@@ -110,11 +104,26 @@ export class OrdersService {
       };
     } catch (error: unknown) {
       this.logger.error({ error }, CREATE_ORDER_FAILURE_LOG);
-      return {
-        type: ResultCode.FAILED,
-        message: 'Failed to create order',
-      };
+      return this.failedOrderResult('Failed to create order');
     }
+  }
+
+  /**
+   * Helper function to log and return a failed order result
+   *
+   * @param message - The error message
+   * @param context - Optional additional context for logging
+   * @returns FailedResult with the provided message
+   */
+  private failedOrderResult(
+    message: string,
+    context?: Record<string, unknown>,
+  ): FailedResult {
+    this.logger.error({ message, ...context }, CREATE_ORDER_FAILURE_LOG);
+    return {
+      type: ResultCode.FAILED,
+      message,
+    };
   }
 
   /**
@@ -151,10 +160,11 @@ export class OrdersService {
       const avalableCash = netCashAmount - reservedCashAmount;
 
       if (avalableCash < requiredAmount) {
-        return {
-          type: ResultCode.FAILED,
-          message: 'Insufficient funds',
-        };
+        return this.failedOrderResult('Insufficient funds', {
+          userId,
+          requiredAmount,
+          availableCash: avalableCash,
+        });
       }
     } else if (createOrderDto.side === OrderSide.SELL) {
       // Validate user has sufficient shares
@@ -164,10 +174,12 @@ export class OrdersService {
       );
 
       if (availableShares < size) {
-        return {
-          type: ResultCode.FAILED,
-          message: 'Insufficient shares',
-        };
+        return this.failedOrderResult('Insufficient shares', {
+          userId,
+          instrumentId: createOrderDto.instrumentId,
+          requiredShares: size,
+          availableShares,
+        });
       }
     }
 
@@ -196,6 +208,10 @@ export class OrdersService {
       );
 
       if (!marketData) {
+        this.logger.error(
+          { instrumentId: createOrderDto.instrumentId },
+          CREATE_ORDER_FAILURE_LOG,
+        );
         return {
           type: ResultCode.FAILED,
           message: 'Market data not available for instrument',

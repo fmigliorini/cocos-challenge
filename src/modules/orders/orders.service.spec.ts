@@ -8,11 +8,24 @@ import { CreateOrderData } from './orders.repository';
 import { Instrument } from '../instruments/entities/instrument.entity';
 import { InstrumentType } from '../instruments/instruments.type';
 import { MarketData } from '../market-data/entities/market-data.entity';
+import { Logger } from '@nestjs/common';
 
 describe('OrdersService', () => {
   let sut: OrdersService;
-  let ordersRepository: OrdersRepository;
   let mockOrdersRepository: Record<string, jest.Mock>;
+
+  beforeAll(() => {
+    // Spy on Logger prototype methods to suppress all output during tests
+    jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'debug').mockImplementation(() => undefined);
+    jest.spyOn(Logger.prototype, 'verbose').mockImplementation(() => undefined);
+  });
+
+  afterAll(() => {
+    jest.restoreAllMocks();
+  });
 
   const mockInstrument = {
     id: 1,
@@ -73,7 +86,7 @@ describe('OrdersService', () => {
 
     // get the service from the module
     sut = module.get<OrdersService>(OrdersService);
-    ordersRepository = module.get<OrdersRepository>(OrdersRepository);
+    // ordersRepository = module.get<OrdersRepository>(OrdersRepository); // This line is no longer needed as mockOrdersRepository is directly injected
   });
 
   afterEach(() => {
@@ -84,9 +97,10 @@ describe('OrdersService', () => {
     expect(sut).toBeDefined();
   });
 
-  it('should have OrdersRepository injected', () => {
-    expect(ordersRepository).toBeDefined();
-  });
+  // The following test is no longer needed as mockOrdersRepository is directly injected
+  // it('should have OrdersRepository injected', () => {
+  //   expect(ordersRepository).toBeDefined();
+  // });
 
   describe('createOrder', () => {
     const userId = 1;
