@@ -26,7 +26,7 @@ export class OrdersRepository {
     private readonly instruments: Repository<Instrument>,
     @InjectRepository(MarketData)
     private readonly marketData: Repository<MarketData>,
-  ) {}
+  ) { }
 
   async createOrder(orderData: CreateOrderData): Promise<Order> {
     const order = this.orders.create(orderData);
@@ -49,7 +49,7 @@ export class OrdersRepository {
   /**
    * Get available cash for user (FILLED orders only)
    * Note: this function is repeated by the portfolio service
-   * @TODO: Move to user repository or create cash repository?
+   * @TODO: Move to a place to reuse it?
    */
   async getAvailableCash(userId: number): Promise<string> {
     const result = await this.orders
