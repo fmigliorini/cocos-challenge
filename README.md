@@ -35,7 +35,7 @@ LOG_LEVEL=debug
 - **Node.js**: v20+
 - **Yarn**: v3+
 
-## 🚀 Installation
+## Installation
 
 ```bash
 # Clone the repository
@@ -64,7 +64,7 @@ The API will be available at `http://localhost:3000`
 
 ---
 
-## 🔗 Useful Links
+## Useful Links
 
 ### API Documentation (Swagger)
 ```
