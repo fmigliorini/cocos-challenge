@@ -19,7 +19,7 @@ export class CreateOrderDto {
   })
   @IsInt()
   @IsPositive()
-  @Transform(({ value }) => parseInt(value))
+  @Transform(({ value }) => parseInt(value, 10))
   instrumentId: number;
 
   @ApiProperty({

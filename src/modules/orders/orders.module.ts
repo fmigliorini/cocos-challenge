@@ -7,6 +7,7 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { OrdersRepository } from './orders.repository';
 import { UsersModule } from '../users/users.module';
+import { ValidateUserHeaderPipe } from './pipes/validate-user-header.pipe';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { UsersModule } from '../users/users.module';
     UsersModule,
   ],
   controllers: [OrdersController],
-  providers: [OrdersService, OrdersRepository],
-  exports: [OrdersService, OrdersRepository],
+  providers: [OrdersService, OrdersRepository, ValidateUserHeaderPipe],
+  exports: [OrdersService, OrdersRepository, ValidateUserHeaderPipe],
 })
 export class OrdersModule {}

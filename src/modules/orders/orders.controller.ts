@@ -2,8 +2,7 @@ import {
   Controller,
   Post,
   Body,
-  Param,
-  ParseIntPipe,
+  Headers,
   HttpStatus,
   HttpCode,
   HttpException,
@@ -13,14 +12,18 @@ import { OrdersService, OrderResult } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderResponseDto } from './dto/order-response.dto';
 import { ResultCode } from '../../core/common-types';
-import { UserExistsPipe } from '../users/pipes/user-exists.pipe';
+import { ValidateUserHeaderPipe } from './pipes/validate-user-header.pipe';
 
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly validateUserHeaderPipe: ValidateUserHeaderPipe,
+  ) { }
 
-  @Post(':userId')
+  @Post()
+  // Usually return empty payload but for the exam purpose we return the order data
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new order',
@@ -42,9 +45,13 @@ export class OrdersController {
       'Order validation failed (insufficient funds, invalid instrument, etc.)',
   })
   async createOrder(
-    @Param('userId', ParseIntPipe, UserExistsPipe) userId: number,
+    @Headers('x-user-id') userIdHeader: string,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<OrderResponseDto> {
+    // Validate user ID header using the pipe
+    // Note: This can be actually a Guard but for the exam purpose I am using a Pipe
+    const userId = await this.validateUserHeaderPipe.transform(userIdHeader);
+
     const result: OrderResult = await this.ordersService.createOrder(
       userId,
       createOrderDto,

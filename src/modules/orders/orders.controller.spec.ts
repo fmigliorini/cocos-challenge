@@ -6,15 +6,15 @@ import { OrdersRepository } from './orders.repository';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderType, OrderSide, OrderStatus } from './orders.types';
 import { ResultCode } from '../../core/common-types';
-import { UserExistsPipe } from '../users/pipes/user-exists.pipe';
+import { ValidateUserHeaderPipe } from './pipes/validate-user-header.pipe';
 import { UsersRepository } from '../users/users.repository';
 
 describe('OrdersController', () => {
   let sut: OrdersController;
   let ordersService: OrdersService;
-  let userExistsPipe: UserExistsPipe;
+  let validateUserHeaderPipe: ValidateUserHeaderPipe;
   let ordersServiceCreateOrderSpy: jest.SpyInstance;
-  let userExistsPipeTransformSpy: jest.SpyInstance;
+  let validateUserHeaderPipeSpy: jest.SpyInstance;
 
   const mockOrder = {
     id: 1,
@@ -34,7 +34,7 @@ describe('OrdersController', () => {
       controllers: [OrdersController],
       providers: [
         OrdersService,
-        UserExistsPipe,
+        ValidateUserHeaderPipe,
         {
           provide: OrdersRepository,
           useValue: {
@@ -58,11 +58,13 @@ describe('OrdersController', () => {
     // get the controller and services from the module
     sut = module.get<OrdersController>(OrdersController);
     ordersService = module.get<OrdersService>(OrdersService);
-    userExistsPipe = module.get<UserExistsPipe>(UserExistsPipe);
+    validateUserHeaderPipe = module.get<ValidateUserHeaderPipe>(
+      ValidateUserHeaderPipe,
+    );
 
     // Create spies
     ordersServiceCreateOrderSpy = jest.spyOn(ordersService, 'createOrder');
-    userExistsPipeTransformSpy = jest.spyOn(userExistsPipe, 'transform');
+    validateUserHeaderPipeSpy = jest.spyOn(validateUserHeaderPipe, 'transform');
   });
 
   afterEach(() => {
@@ -71,6 +73,7 @@ describe('OrdersController', () => {
 
   describe('createOrder', () => {
     const userId = 1;
+    const userIdHeader = '1';
     const createOrderDto: CreateOrderDto = {
       instrumentId: 1,
       side: OrderSide.BUY,
@@ -85,10 +88,10 @@ describe('OrdersController', () => {
         data: mockOrder,
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(successResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act
-      const result = await sut.createOrder(userId, createOrderDto);
+      const result = await sut.createOrder(userIdHeader, createOrderDto);
 
       // Assert
       expect(result).toEqual(mockOrder);
@@ -106,10 +109,12 @@ describe('OrdersController', () => {
         message: 'Insufficient funds',
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(failureResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(
         new HttpException('Insufficient funds', HttpStatus.CONFLICT),
       );
 
@@ -123,12 +128,12 @@ describe('OrdersController', () => {
       // Arrange
       const error = new Error('Database connection failed');
       ordersServiceCreateOrderSpy.mockRejectedValue(error);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
-        error,
-      );
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(error);
       expect(ordersServiceCreateOrderSpy).toHaveBeenCalledWith(
         userId,
         createOrderDto,
@@ -148,10 +153,10 @@ describe('OrdersController', () => {
         data: mockOrder,
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(successResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act
-      const result = await sut.createOrder(userId, marketOrderDto);
+      const result = await sut.createOrder(userIdHeader, marketOrderDto);
 
       // Assert
       expect(result).toEqual(mockOrder);
@@ -180,10 +185,10 @@ describe('OrdersController', () => {
         data: limitOrder,
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(successResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act
-      const result = await sut.createOrder(userId, limitOrderDto);
+      const result = await sut.createOrder(userIdHeader, limitOrderDto);
 
       // Assert
       expect(result).toEqual(limitOrder);
@@ -207,10 +212,10 @@ describe('OrdersController', () => {
         data: cashOrder,
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(successResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act
-      const result = await sut.createOrder(userId, cashInDto);
+      const result = await sut.createOrder(userIdHeader, cashInDto);
 
       // Assert
       expect(result).toEqual(cashOrder);
@@ -234,10 +239,10 @@ describe('OrdersController', () => {
         data: cashOrder,
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(successResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act
-      const result = await sut.createOrder(userId, cashOutDto);
+      const result = await sut.createOrder(userIdHeader, cashOutDto);
 
       // Assert
       expect(result).toEqual(cashOrder);
@@ -254,12 +259,12 @@ describe('OrdersController', () => {
         message: 'Insufficient funds',
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(failureResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should handle insufficient shares error', async () => {
@@ -269,12 +274,12 @@ describe('OrdersController', () => {
         message: 'Insufficient shares',
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(failureResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should handle instrument not found error', async () => {
@@ -284,12 +289,12 @@ describe('OrdersController', () => {
         message: 'Instrument not found',
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(failureResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(HttpException);
     });
 
     it('should handle market data not available error', async () => {
@@ -299,12 +304,12 @@ describe('OrdersController', () => {
         message: 'Market data not available for instrument',
       };
       ordersServiceCreateOrderSpy.mockResolvedValue(failureResult);
-      userExistsPipeTransformSpy.mockResolvedValue(userId);
+      validateUserHeaderPipeSpy.mockResolvedValue(userId);
 
       // Act & Assert
-      await expect(sut.createOrder(userId, createOrderDto)).rejects.toThrow(
-        HttpException,
-      );
+      await expect(
+        sut.createOrder(userIdHeader, createOrderDto),
+      ).rejects.toThrow(HttpException);
     });
   });
 
