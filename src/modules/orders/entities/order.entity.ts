@@ -1,6 +1,12 @@
 import { Instrument } from 'src/modules/instruments/entities/instrument.entity';
 import { Users } from 'src/modules/users/entities/user.entity';
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { OrderSide, OrderStatus, OrderType } from '../orders.types';
 import { DecimalAsStringTransformer } from 'src/infrastructure/database/transformers/decimal.transformer';
 
@@ -59,8 +65,10 @@ export class Order {
   datetime: Date;
 
   @ManyToOne(() => Instrument, (instrument) => instrument.orders)
+  @JoinColumn({ name: 'instrumentid' })
   instrument: Instrument;
 
   @ManyToOne(() => Users, (user) => user.orders)
+  @JoinColumn({ name: 'userid' })
   user: Users;
 }
