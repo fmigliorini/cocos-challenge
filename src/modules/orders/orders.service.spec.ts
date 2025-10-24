@@ -36,7 +36,7 @@ describe('OrdersService', () => {
     instrument: mockInstrument,
     createdAt: new Date(),
     updatedAt: new Date(),
-  } as unknown as MarketData; // small hack to initialize the market data object. :) 
+  } as unknown as MarketData; // small hack to initialize the market data object. :)
 
   const mockOrder = {
     id: 1,

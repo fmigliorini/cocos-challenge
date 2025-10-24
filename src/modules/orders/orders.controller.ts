@@ -18,7 +18,7 @@ import { UserExistsPipe } from '../users/pipes/user-exists.pipe';
 @ApiTags('orders')
 @Controller('orders')
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) { }
+  constructor(private readonly ordersService: OrdersService) {}
 
   @Post(':userId')
   @HttpCode(HttpStatus.CREATED)
